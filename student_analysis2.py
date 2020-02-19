@@ -39,6 +39,18 @@ for enrollment in enrollments:
     enrollment['is_udacity'] = enrollment['is_udacity'] == 'True'
     enrollment['is_canceled'] = enrollment['is_canceled'] == 'True'
 
+for engagement in daily_engagement:
+    engagement['lessons_completed'] = int(float(engagement['lessons_completed']))
+    engagement['num_courses_visited'] = int(float(engagement['num_courses_visited']))
+    engagement['projects_completed'] = int(float(engagement['projects_completed']))
+    engagement['total_minutes_visited'] = float(engagement['total_minutes_visited'])
+    engagement['utc_date'] = parse_date(engagement['utc_date'])
+
+for submission in project_submissions:
+    submission['completion_date'] = parse_date(submission['completion_date'])
+    submission['creation_date'] = parse_date(submission['creation_date'])
+
+
 """ Looping through the daily_enagement file to change the delete the column nanme 'acct'
 and change it to 'account_key'
 """
@@ -112,7 +124,7 @@ because they they are udacity members. So when is_udacity is True.. This means t
 
 udacity_test_accounts = set()
 for enrollment in enrollments:
-    if enrollment['is_udacity']=='True':
+    if enrollment['is_udacity']:
             udacity_test_accounts.add(enrollment['account_key'])
 print(len(udacity_test_accounts))
 
@@ -123,15 +135,19 @@ analysing our data"""
 
 
 def remove_udacity_accounts(data):
-    none_udacity_accounts = []
+    none_udacity_data = []
     for data_points in data:
         if data_points['account_key'] not in udacity_test_accounts:
-            none_udacity_accounts.append(data_points)
-    return none_udacity_accounts
+            none_udacity_data.append(data_points)
+    return none_udacity_data
 
 new_enrollment_data = remove_udacity_accounts(enrollments)
 new_engagement_data = remove_udacity_accounts(daily_engagement)
 new_submissions_data = remove_udacity_accounts(project_submissions)
+
+print(len(new_enrollment_data))
+print(len(new_engagement_data))
+print(len(new_submissions_data))
 
 """ Now lets start analysing our dataframe
 
@@ -149,10 +165,45 @@ for more then 7 days.
 
 paid_students = {}
 for enrollment in new_enrollment_data:
-    if not enrollment['is_canceled'] or enrollment['days_to_cancel'] > 7:
+    if (not enrollment['is_canceled'] or
+            enrollment['days_to_cancel'] > 7):
         account_key = enrollment['account_key']
         enrollment_date = enrollment['join_date']
-    if account_key not in paid_students or enrollment_date > paid_students[account_key]:
-        paid_students[account_key] = enrollment_date
-
+        if (account_key not in paid_students or
+                enrollment_date > paid_students[account_key]):
+            paid_students[account_key] = enrollment_date
 print(len(paid_students))
+
+
+""" create a function to return true if engagement_record
+record happend within one week of student joining """
+
+def within_one_week(join_date, engagement_date):
+    time_delta = engagement_date - join_date
+    return time_delta.days < 7
+
+def remove_free_trial_cancels(data):
+    new_data = []
+    for data_point in data:
+        if data_point['account_key'] in paid_students:
+            new_data.append(data_point)
+    return new_data
+
+paid_enrollments = remove_free_trial_cancels(new_enrollment_data)
+paid_engagement = remove_free_trial_cancels(new_engagement_data)
+paid_submissions = remove_free_trial_cancels(new_submissions_data)
+
+print(len(paid_enrollments))
+print(len(paid_engagement))
+print(len(paid_submissions))
+
+paid_engagement_in_first_week = []
+for engagement_record in paid_engagement:
+    account_key = engagement_record['account_key']
+    join_date = paid_students[account_key]
+    engagement_record_date = engagement_record['utc_date']
+
+    if within_one_week(join_date, engagement_record_date):
+         paid_engagement_in_first_week.append(engagement_record)
+
+print(len(paid_engagement_in_first_week))
