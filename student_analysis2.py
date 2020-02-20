@@ -199,7 +199,7 @@ record happend within one week of student joining """
 
 def within_one_week(join_date, engagement_date):
     time_delta = engagement_date - join_date
-    return time_delta.days < 7
+    return time_delta.days < 7 and time_delta.days >= 0
 
 def remove_free_trial_cancels(data):
     new_data = []
@@ -253,3 +253,17 @@ print(np.mean(total_minutes))
 print(np.max(total_minutes))
 print(np.min(total_minutes))
 print(np.std(total_minutes))
+
+
+student_with_max_minutes = None
+max_minutes = 0
+
+for student, total_minutes in total_minutes_by_account.items():# I am looping through the keys and values of the total_minutes_by_account.
+    if total_minutes > max_minutes:# if the total minutes > then max minutes then
+        max_minutes = total_minutes
+        student_with_max_minutes = student
+print(max_minutes)
+
+for engagement_record in paid_engagement_in_first_week:
+    if engagement_record['account_key'] == student_with_max_minutes:
+        print(engagement_record)
