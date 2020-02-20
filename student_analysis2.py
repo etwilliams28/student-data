@@ -1,5 +1,6 @@
 import unicodecsv
 import pandas as pd
+import numpy as np
 
 
 """ using unicodecsv to read csv files """
@@ -133,6 +134,18 @@ print(len(udacity_test_accounts))
 """ lets remove all the udacity_test_accounts from all csv files... because we do not want to look at non-students when
 analysing our data"""
 
+""" Testing another way to remove not udacity user from data_point. IT WORKS !
+
+def remove_udacity_test(data):
+    none_udacity_data = []
+    for data_points in data:
+        student = data_points['account_key']
+        if not data_points['is_udacity']:
+            none_udacity_data.append(student)
+    return none_udacity_data
+"""
+
+
 
 def remove_udacity_accounts(data):
     none_udacity_data = []
@@ -159,6 +172,12 @@ not pass the first project?
 How:
 To answer this question first I must filter out all current students that have been enrolled
 for more then 7 days.
+
+problems:
+- students must be enrolled for more than 7 days_to_cancel
+- students must not have canceled from the course
+- need to create a dictionary called paid students
+
 
 """
 
@@ -207,3 +226,30 @@ for engagement_record in paid_engagement:
          paid_engagement_in_first_week.append(engagement_record)
 
 print(len(paid_engagement_in_first_week))
+
+
+from collections import defaultdict
+
+""" created a dictionary to group engagement data by the account key """
+
+engagement_by_account = defaultdict(list) #defaultdict allows specify a default value.
+for engagement_record in paid_engagement_in_first_week: # looping through each engagement record
+    account_key = engagement_record['account_key'] # saved the engagement_record['account_key'] in the variable called 'account_key'
+    engagement_by_account[account_key].append(engagement_record) #looked up list of engagment record for that account key engagement_by_account[account_key]
+                                                                # after I appended the engagement record to the list of engagement records.
+
+total_minutes_by_account  = {}
+for account_key, engagement_for_students in engagement_by_account.items():
+    total_minutes = 0
+    for engagement_record in engagement_for_students:
+        total_minutes += engagement_record['total_minutes_visited']
+        total_minutes_by_account[account_key] = total_minutes # finally I store that number of minutes under that account key in the new dict.
+
+
+total_minutes = list(total_minutes_by_account.values())
+import statistics
+import numpy as np
+print(np.mean(total_minutes))
+print(np.max(total_minutes))
+print(np.min(total_minutes))
+print(np.std(total_minutes))
