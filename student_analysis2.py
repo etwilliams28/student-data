@@ -267,3 +267,33 @@ print(max_minutes)
 for engagement_record in paid_engagement_in_first_week:
     if engagement_record['account_key'] == student_with_max_minutes:
         print(engagement_record)
+
+
+""" I want to find how many lessons students completed in their first within_one_week.
+Similar to what i did above
+
+going to create three functions:
+
+1. to group records together by account keys
+2. sum up all records by account key
+3. to print up statsitic summaries
+"""
+
+submsissions_by_account = defaultdict(list)
+for engagement_record in paid_engagement_in_first_week:
+    account_key = engagement_record['account_key']
+    submsissions_by_account[account_key].append(engagement_record)
+
+total_submissions_by_account = {}
+for account_key, submissions_for_students in submsissions_by_account.items():
+    total_submissions = 0
+    for submission_record in submissions_for_students:
+        total_submissions += submission_record['lessons_completed']
+        total_submissions_by_account[account_key] = total_submissions
+
+print(total_submissions)
+
+total_submissions = list(total_submissions_by_account.values())
+
+print(np.mean(total_submissions))
+print(np.max(total_submissions))
