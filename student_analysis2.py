@@ -232,19 +232,27 @@ from collections import defaultdict
 
 """ created a dictionary to group engagement data by the account key """
 
-engagement_by_account = defaultdict(list) #defaultdict allows specify a default value.
-for engagement_record in paid_engagement_in_first_week: # looping through each engagement record
-    account_key = engagement_record['account_key'] # saved the engagement_record['account_key'] in the variable called 'account_key'
-    engagement_by_account[account_key].append(engagement_record) #looked up list of engagment record for that account key engagement_by_account[account_key]
-                                                                # after I appended the engagement record to the list of engagement records.
+def group_data(data, key_name):
+    grouped_data = defaultdict(list)
+    for data_point in data:
+        key = data_point[key_name]
+        grouped_data[key].append(data_point)
+    return grouped_data
 
-total_minutes_by_account  = {}
-for account_key, engagement_for_students in engagement_by_account.items():
-    total_minutes = 0
-    for engagement_record in engagement_for_students:
-        total_minutes += engagement_record['total_minutes_visited']
-        total_minutes_by_account[account_key] = total_minutes # finally I store that number of minutes under that account key in the new dict.
+engagement_by_account = group_data(paid_engagement_in_first_week, 'account_key')
 
+
+
+def sum_data(grouped_data, field_name):
+    sum_of_data = {}
+    for key, data_points in grouped_data.items():
+        total = 0
+        for data_point in data_points:
+            total += data_point[field_name]
+            sum_of_data[key] = total
+    return sum_of_data
+
+total_minutes_by_account = sum_data(engagement_by_account,'total_minutes_visited')
 
 total_minutes = list(total_minutes_by_account.values())
 import statistics
@@ -279,21 +287,16 @@ going to create three functions:
 3. to print up statsitic summaries
 """
 
-submsissions_by_account = defaultdict(list)
-for engagement_record in paid_engagement_in_first_week:
-    account_key = engagement_record['account_key']
-    submsissions_by_account[account_key].append(engagement_record)
 
-total_submissions_by_account = {}
-for account_key, submissions_for_students in submsissions_by_account.items():
-    total_submissions = 0
-    for submission_record in submissions_for_students:
-        total_submissions += submission_record['lessons_completed']
-        total_submissions_by_account[account_key] = total_submissions
 
-print(total_submissions)
+total_minutes_by_account = sum_data(engagement_by_account, 'lessons_completed')
 
-total_submissions = list(total_submissions_by_account.values())
 
-print(np.mean(total_submissions))
-print(np.max(total_submissions))
+def describe_data(data):
+    print(np.mean(data))
+    print(np.max(data))
+    print(np.min(data))
+
+
+summed_data = list(total_minutes_by_account.values())
+print(describe_data(summed_data))
