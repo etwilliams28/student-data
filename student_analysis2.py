@@ -216,6 +216,9 @@ print(len(paid_enrollments))
 print(len(paid_engagement))
 print(len(paid_submissions))
 
+
+
+
 paid_engagement_in_first_week = []
 for engagement_record in paid_engagement:
     account_key = engagement_record['account_key']
@@ -224,11 +227,16 @@ for engagement_record in paid_engagement:
 
     if within_one_week(join_date, engagement_record_date):
          paid_engagement_in_first_week.append(engagement_record)
+    if engagement_record['num_courses_visited'] > 0:
+        engagement_record['has_visited'] = 1
+    else:
+        engagement_record['has_visited'] = 0
 
 print(len(paid_engagement_in_first_week))
 
 
 from collections import defaultdict
+
 
 """ created a dictionary to group engagement data by the account key """
 
@@ -240,8 +248,6 @@ def group_data(data, key_name):
     return grouped_data
 
 engagement_by_account = group_data(paid_engagement_in_first_week, 'account_key')
-
-
 
 def sum_data(grouped_data, field_name):
     sum_of_data = {}
@@ -287,16 +293,27 @@ going to create three functions:
 3. to print up statsitic summaries
 """
 
-
-
 total_minutes_by_account = sum_data(engagement_by_account, 'lessons_completed')
-
 
 def describe_data(data):
     print(np.mean(data))
     print(np.max(data))
     print(np.min(data))
-
+    print(np.std(data))
 
 summed_data = list(total_minutes_by_account.values())
 print(describe_data(summed_data))
+
+
+""" I want to see the amount of days student visit courses in their first week
+
+To do this I will create new feild called has_visited and set 1 for visited or 0 for not
+visited in that day """
+
+print(paid_engagement_in_first_week[0])
+
+
+days_visited_by_account = sum_data(engagement_by_account, 'has_visited')
+
+visited_sum = list(days_visited_by_account.values())
+print(describe_data(visited_sum))
