@@ -2,10 +2,10 @@ Date created
 Create: February 17 2020
 
 Project Title
-Bikeshare Project
+Student-DATA
 
 Description
-An analysis of data provided the student data at Udacity. We are specifically looking at student data with regards to engagement,enrollment and submissions
+An analysis of student data at Udacity, Looking specifically at student data with regards to engagement,enrollment and submissions
 
 Files Used:
 daily_engagement.csv
